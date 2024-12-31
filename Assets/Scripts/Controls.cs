@@ -80,7 +80,18 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                     ""path"": ""<XInputController>/buttonSouth"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": ""Xbox control scheme"",
+                    ""action"": ""Accelerate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""780e47c2-7b10-440e-9661-1596f8fc0b0a"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard Control Scheme"",
                     ""action"": ""Accelerate"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -98,11 +109,33 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""d174032c-d986-4c78-be3d-446906a6cd71"",
+                    ""path"": ""<Keyboard>/c"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard Control Scheme"",
+                    ""action"": ""Brake"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""03761544-d909-4096-8ada-c311622e9624"",
                     ""path"": ""<XInputController>/dpad/left"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Xbox control scheme"",
+                    ""action"": ""Left"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""61cf3bd2-b345-4701-b03c-f0119c2533de"",
+                    ""path"": ""<Keyboard>/z"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard Control Scheme"",
                     ""action"": ""Left"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -120,11 +153,33 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""b0a07763-f9dc-45d5-ab20-b2b053676f98"",
+                    ""path"": ""<Keyboard>/x"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard Control Scheme"",
+                    ""action"": ""Right"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""a63250ee-f1dc-4186-9a33-86d027c5c04f"",
                     ""path"": ""<XInputController>/start"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Xbox control scheme"",
+                    ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7859bc5b-0ad1-4470-abb5-9f3753e297f4"",
+                    ""path"": ""<Keyboard>/p"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard Control Scheme"",
                     ""action"": ""Pause"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -136,6 +191,11 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         {
             ""name"": ""Xbox control scheme"",
             ""bindingGroup"": ""Xbox control scheme"",
+            ""devices"": []
+        },
+        {
+            ""name"": ""Keyboard Control Scheme"",
+            ""bindingGroup"": ""Keyboard Control Scheme"",
             ""devices"": []
         }
     ]
@@ -289,6 +349,15 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         {
             if (m_XboxcontrolschemeSchemeIndex == -1) m_XboxcontrolschemeSchemeIndex = asset.FindControlSchemeIndex("Xbox control scheme");
             return asset.controlSchemes[m_XboxcontrolschemeSchemeIndex];
+        }
+    }
+    private int m_KeyboardControlSchemeSchemeIndex = -1;
+    public InputControlScheme KeyboardControlSchemeScheme
+    {
+        get
+        {
+            if (m_KeyboardControlSchemeSchemeIndex == -1) m_KeyboardControlSchemeSchemeIndex = asset.FindControlSchemeIndex("Keyboard Control Scheme");
+            return asset.controlSchemes[m_KeyboardControlSchemeSchemeIndex];
         }
     }
     public interface IVehicleActions
