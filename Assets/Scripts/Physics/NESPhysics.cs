@@ -167,51 +167,47 @@ public class NESPhysics : VehiclePhysics
         int driftThresholdIndexLUT = 0;
         if (!vehicleProperties.hasUnlimitedGrip)
         {
-            goto Label8596;
+            //Label8596:
+            if (raceProperties.hasUnlimitedGrip && vehicleProperties.playerIndex == 0)
+            {
+                vehicleProperties.xForce = vehicleProperties.xVelocity;
+                vehicleProperties.yForce = vehicleProperties.yVelocity;
+                return;
+            }
+            else
+            {
+                //Label859F:
+                if (vehicleProperties.gripChangeTimer == 0)
+                {
+                    //Label85AE:
+                    driftThresholdIndexLUT = raceProperties.HANDICAP_LUT[vehicleProperties.handicapAmount];
+                }
+                else if (vehicleProperties.gripChangeTimer < 0)
+                {
+                    Debug.Log("DecreaseTimerAndCalculateExternalFriction()");
+                    //DecreaseTimerAndCalculateExternalFriction();
+                    return;
+                }
+                else
+                {
+                    vehicleProperties.gripChangeTimer--;
+                    driftThresholdIndexLUT = 0;
+                }
+            }
         }
-        driftThresholdIndexLUT = 0x15;
-        goto Label85B4;
-
-        Label8596:
-            if (!raceProperties.hasUnlimitedGrip)
-            {
-                goto Label859F;
-            }
-            if (vehicleProperties.playerIndex == 0)
-            {
-                goto Label85CD;
-            }
-
-        Label859F:
-            if (vehicleProperties.gripChangeTimer == 0)
-            {
-                goto Label85AE;
-            }
-            if (vehicleProperties.gripChangeTimer < 0)
-            {
-                Debug.Log("DecreaseTimerAndCalculateExternalFriction()");
-                //DecreaseTimerAndCalculateExternalFriction();
-                return;
-            }
-            vehicleProperties.gripChangeTimer--;
-            driftThresholdIndexLUT = 0;
-            goto Label85B4;
-
-        Label85AE:
-            driftThresholdIndexLUT = raceProperties.HANDICAP_LUT[vehicleProperties.handicapAmount];
-
-        Label85B4:
-            vehicleProperties.xyVelocityForceDifferenceMagnitude = vehicleProperties.yVelocityForceDifference + vehicleProperties.xVelocityForceDifference;
-            if (vehicleProperties.xyVelocityForceDifferenceMagnitude >= raceProperties.DRIFT_THRESHOLD_LUT[driftThresholdIndexLUT])
-            {
-                Debug.Log("CalculateExternalFriction()");
-                //CalculateExternalFriction();
-                return;
-            }
-
-        Label85CD:
-            vehicleProperties.xForce = vehicleProperties.xVelocity;
-            vehicleProperties.yForce = vehicleProperties.yVelocity;
+        else
+        {
+            driftThresholdIndexLUT = 0x15;
+        }
+        vehicleProperties.xyVelocityForceDifferenceMagnitude = vehicleProperties.yVelocityForceDifference + vehicleProperties.xVelocityForceDifference;
+        if (vehicleProperties.xyVelocityForceDifferenceMagnitude >= raceProperties.DRIFT_THRESHOLD_LUT[driftThresholdIndexLUT])
+        {
+            Debug.Log("CalculateExternalFriction()");
+            //CalculateExternalFriction();
+            return;
+        }
+        vehicleProperties.xForce = vehicleProperties.xVelocity;
+        vehicleProperties.yForce = vehicleProperties.yVelocity;
 
     }
 }
