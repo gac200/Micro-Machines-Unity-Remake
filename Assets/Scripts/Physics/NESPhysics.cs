@@ -36,7 +36,7 @@ public class NESPhysics : VehiclePhysics
         }
 
         // Move forward if turning while not moving and not a chopper
-        if (!vehicleProperties.isMoving && raceProperties.vehicleType != CHOPPERS) {
+        if ((vehicleProperties.controllerLeft || vehicleProperties.controllerRight) && !vehicleProperties.isMoving && raceProperties.vehicleType != CHOPPERS) {
             vehicleProperties.velocity = 1;
         }
 
