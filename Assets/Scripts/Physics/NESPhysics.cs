@@ -167,26 +167,24 @@ public class NESPhysics : VehiclePhysics
         int driftThresholdIndexLUT = 0;
         if (!vehicleProperties.hasUnlimitedGrip)
         {
-            //Label8596:
             if (raceProperties.hasUnlimitedGrip && vehicleProperties.playerIndex == 0)
             {
-                vehicleProperties.xForce = vehicleProperties.xVelocity;
-                vehicleProperties.yForce = vehicleProperties.yVelocity;
-                return;
+                goto ApplyForces;
             }
             else
             {
-                //Label859F:
                 if (vehicleProperties.gripChangeTimer == 0)
                 {
-                    //Label85AE:
                     driftThresholdIndexLUT = raceProperties.HANDICAP_LUT[vehicleProperties.handicapAmount];
                 }
                 else if (vehicleProperties.gripChangeTimer < 0)
                 {
-                    Debug.Log("DecreaseTimerAndCalculateExternalFriction()");
-                    //DecreaseTimerAndCalculateExternalFriction();
-                    return;
+                    vehicleProperties.gripChangeTimer--;
+                    if (vehicleProperties.gripChangeTimer < -127)
+                    {
+                        vehicleProperties.gripChangeTimer = 0;
+                    }
+                    goto ApplyForces;
                 }
                 else
                 {
@@ -206,8 +204,13 @@ public class NESPhysics : VehiclePhysics
             //CalculateExternalFriction();
             return;
         }
+ApplyForces:
         vehicleProperties.xForce = vehicleProperties.xVelocity;
         vehicleProperties.yForce = vehicleProperties.yVelocity;
 
+    }
+    public void DecreaseTimerAndCalculateExternalFriction(ref VehicleProperties vehicleProperties)
+    {
+        vehicleProperties.gripChangeTimer--;
     }
 }
