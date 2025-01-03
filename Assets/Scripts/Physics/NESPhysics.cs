@@ -160,19 +160,8 @@ public class NESPhysics : VehiclePhysics
     public override void CalculateVelocityEffects(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
     {
         // Calculate differences
-        vehicleProperties.xVelocityForceDifference = vehicleProperties.xVelocity - vehicleProperties.xForce;
-        vehicleProperties.yVelocityForceDifference = vehicleProperties.yVelocity - vehicleProperties.yForce;
-
-        // Take absolute values if differences are negative
-        if (vehicleProperties.xVelocityForceDifference < 0)
-        {
-            vehicleProperties.xVelocityForceDifference = Math.Abs(vehicleProperties.xVelocityForceDifference);
-        }
-
-        if (vehicleProperties.yVelocityForceDifference < 0)
-        {
-            vehicleProperties.yVelocityForceDifference = Math.Abs(vehicleProperties.yVelocityForceDifference);
-        }
+        vehicleProperties.xVelocityForceDifference = Math.Abs(vehicleProperties.xVelocity - vehicleProperties.xForce);
+        vehicleProperties.yVelocityForceDifference = Math.Abs(vehicleProperties.yVelocity - vehicleProperties.yForce);
 
         // Check if vehicle should drift or be affected by external friction
         int driftThresholdIndexLUT = 0;
@@ -202,20 +191,22 @@ public class NESPhysics : VehiclePhysics
             {
                 Debug.Log("DecreaseTimerAndCalculateExternalFriction()");
                 //DecreaseTimerAndCalculateExternalFriction();
+                return;
             }
             vehicleProperties.gripChangeTimer--;
             driftThresholdIndexLUT = 0;
             goto Label85B4;
 
         Label85AE:
-            driftThresholdIndexLUT = raceProperties.HANDICAP_LUT[driftThresholdIndexLUT];
+            driftThresholdIndexLUT = raceProperties.HANDICAP_LUT[vehicleProperties.handicapAmount];
 
         Label85B4:
             vehicleProperties.xyVelocityForceDifferenceMagnitude = vehicleProperties.yVelocityForceDifference + vehicleProperties.xVelocityForceDifference;
-            if (vehicleProperties.xyVelocityForceDifferenceMagnitude >= driftThresholdIndexLUT)
+            if (vehicleProperties.xyVelocityForceDifferenceMagnitude >= raceProperties.DRIFT_THRESHOLD_LUT[driftThresholdIndexLUT])
             {
                 Debug.Log("CalculateExternalFriction()");
                 //CalculateExternalFriction();
+                return;
             }
 
         Label85CD:

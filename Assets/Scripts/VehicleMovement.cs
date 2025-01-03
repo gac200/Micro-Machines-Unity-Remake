@@ -51,7 +51,7 @@ public class VehicleMovement: MonoBehaviour {
     void FixedUpdate()
     {
         vehiclePhysics.Turn(ref vehicleProperties, ref raceProperties);
-        vehicleProperties.canReleaseDriftParticles = false;
+        vehicleProperties.isDrifting = false;
         // TODO: find constant for terrain type 14
         if (vehicleProperties.altitude == 0 && vehicleProperties.terrainType != 14)
         {

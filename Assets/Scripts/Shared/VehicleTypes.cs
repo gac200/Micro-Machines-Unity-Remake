@@ -16,7 +16,7 @@ namespace Vehicle.Shared
         public int playerIndex;
         public int spawnState;
         public bool isMoving;
-        public bool canReleaseDriftParticles;
+        public bool isDrifting;
 
         // Vehicle Handling
         public int terrainType;
