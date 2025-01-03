@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Vehicle.Shared
 {
     [System.Serializable]
@@ -10,49 +12,60 @@ namespace Vehicle.Shared
         public bool controllerBrake;
 
         // Timers
-        public int gripChangeTimer;
+        public sbyte gripChangeTimer;
+        public sbyte driftSoundTimer;
+
+        // AI Properties
+        public bool isAIControlledSpeed;
 
         // Vehicle States
-        public int playerIndex;
-        public int spawnState;
+        public sbyte playerIndex;
+        public sbyte spawnState;
         public bool isMoving;
         public bool isDrifting;
 
         // Vehicle Handling
-        public int terrainType;
+        public sbyte terrainType;
         public bool hasUnlimitedGrip;
-        public int handicapAmount;
+        public sbyte handicapAmount;
 
         // Vehicle Motion and Position
-        public int heading;
-        public int velocity;
-        public int altitude;
-        public int xVelocity;
-        public int yVelocity;
-        public int xForce;
-        public int yForce;
-        public int xVelocityForceDifference;
-        public int yVelocityForceDifference;
-        public int xyVelocityForceDifferenceMagnitude;
+        public sbyte heading;
+        public sbyte velocity;
+        public sbyte altitude;
+        public short xVelocity;
+        public short yVelocity;
+        public short xForce;
+        public short yForce;
+        public short xVelocityForceDifference;
+        public short yVelocityForceDifference;
+        public short xyVelocityForceDifferenceMagnitude;
+
+        // Sound
+        // not like original, but allows multiple sfx at once
+        public List<byte> sfx;
     }
 
     [System.Serializable]
     public struct RaceProperties
     {
         // Timers
-        public int countdownTimer;
-        public bool turnPollTimer;
-        public int tankSlowTurnPollTimer;
-        public int velocityPollTimer;
+        public sbyte countdownTimer;
+        public sbyte turnPollTimer;
+        public sbyte tankSlowTurnPollTimer;
+        public sbyte velocityPollTimer;
+        public sbyte driftSpeedLossTimer;
 
         // General Properties
-        public int vehicleType;
+        public sbyte vehicleType;
         public bool hasUnlimitedGrip;
+        public bool isChallengeMode;
 
         // LUTs
-        public byte[] VELOCITY_SCALAR_X_LUT;
-        public byte[] VELOCITY_SCALAR_Y_LUT;
+        public sbyte[] VELOCITY_SCALAR_X_LUT;
+        public sbyte[] VELOCITY_SCALAR_Y_LUT;
         public byte[] HANDICAP_LUT;
         public ushort[] DRIFT_THRESHOLD_LUT;
+        public byte[] DRIFT_FORCE_AMOUNT_LUT;
     }
 }

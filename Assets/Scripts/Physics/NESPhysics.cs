@@ -25,7 +25,7 @@ public class NESPhysics : VehiclePhysics
         }
 
         // Do not turn if not polled at the turn rate or in an undriveable state
-        if (raceProperties.turnPollTimer == false || vehicleProperties.spawnState != ALIVE)
+        if (raceProperties.turnPollTimer == 0 || vehicleProperties.spawnState != ALIVE)
         {
             // Clamp heading when not turning
             if (!vehicleProperties.controllerLeft && !vehicleProperties.controllerRight)
@@ -78,7 +78,7 @@ public class NESPhysics : VehiclePhysics
         }
 
         // Do not turn if not polled at the normal turn rate and not acc/decelerating
-        if (raceProperties.turnPollTimer == false && !vehicleProperties.controllerAccelerate && !vehicleProperties.controllerBrake)
+        if (raceProperties.turnPollTimer == 0 && !vehicleProperties.controllerAccelerate && !vehicleProperties.controllerBrake)
         {
             return;
         }
@@ -120,11 +120,11 @@ public class NESPhysics : VehiclePhysics
         }
 
         // Calculate delta in X direction
-        int speed = Math.Abs(vehicleProperties.velocity);
-        int xScalar;
+        sbyte speed = Math.Abs(vehicleProperties.velocity);
+        sbyte xScalar;
         if (vehicleProperties.velocity < 0)
         {
-            xScalar = -raceProperties.VELOCITY_SCALAR_X_LUT[vehicleProperties.heading];
+            xScalar = (sbyte)-raceProperties.VELOCITY_SCALAR_X_LUT[vehicleProperties.heading];
         }
         else
         {
@@ -140,10 +140,10 @@ public class NESPhysics : VehiclePhysics
         }
 
         // Calculate delta in Y direction
-        int yScalar;
+        sbyte yScalar;
         if (vehicleProperties.velocity < 0)
         {
-            yScalar = -raceProperties.VELOCITY_SCALAR_Y_LUT[vehicleProperties.heading];
+            yScalar = (sbyte)-raceProperties.VELOCITY_SCALAR_Y_LUT[vehicleProperties.heading];
         }
         else
         {
@@ -152,16 +152,16 @@ public class NESPhysics : VehiclePhysics
         vehicleProperties.yVelocity = MultiplyDeltaFromVelocity(yScalar, speed);
     }
 
-    public int MultiplyDeltaFromVelocity(int scalar, int speed)
+    public short MultiplyDeltaFromVelocity(sbyte scalar, sbyte speed)
     {
-        return scalar * speed;
+        return (short)(scalar * speed);
     }
 
     public override void CalculateVelocityEffects(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
     {
         // Calculate differences
-        vehicleProperties.xVelocityForceDifference = Math.Abs(vehicleProperties.xVelocity - vehicleProperties.xForce);
-        vehicleProperties.yVelocityForceDifference = Math.Abs(vehicleProperties.yVelocity - vehicleProperties.yForce);
+        vehicleProperties.xVelocityForceDifference = (short)Math.Abs(vehicleProperties.xVelocity - vehicleProperties.xForce);
+        vehicleProperties.yVelocityForceDifference = (short)Math.Abs(vehicleProperties.yVelocity - vehicleProperties.yForce);
 
         // Check if vehicle should drift or be affected by external friction
         int driftThresholdIndexLUT = 0;
@@ -197,20 +197,103 @@ public class NESPhysics : VehiclePhysics
         {
             driftThresholdIndexLUT = 0x15;
         }
-        vehicleProperties.xyVelocityForceDifferenceMagnitude = vehicleProperties.yVelocityForceDifference + vehicleProperties.xVelocityForceDifference;
+        vehicleProperties.xyVelocityForceDifferenceMagnitude = (short)(vehicleProperties.yVelocityForceDifference + vehicleProperties.xVelocityForceDifference);
         if (vehicleProperties.xyVelocityForceDifferenceMagnitude >= raceProperties.DRIFT_THRESHOLD_LUT[driftThresholdIndexLUT])
         {
-            Debug.Log("CalculateExternalFriction()");
-            //CalculateExternalFriction();
+            CalculateExternalFriction(ref vehicleProperties, ref raceProperties);
             return;
         }
-ApplyForces:
+    ApplyForces:
         vehicleProperties.xForce = vehicleProperties.xVelocity;
         vehicleProperties.yForce = vehicleProperties.yVelocity;
 
     }
-    public void DecreaseTimerAndCalculateExternalFriction(ref VehicleProperties vehicleProperties)
+    public void CalculateExternalFriction(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
     {
-        vehicleProperties.gripChangeTimer--;
+        // Find which drift amount to use
+        int driftForceIndexLUT;
+        if (!vehicleProperties.hasUnlimitedGrip)
+        {
+            driftForceIndexLUT = 0x15;
+        }
+        else if (raceProperties.vehicleType == CHOPPERS && !vehicleProperties.isAIControlledSpeed)
+        {
+            driftForceIndexLUT = 0x0A;
+        }
+        else if (vehicleProperties.gripChangeTimer > 0)
+        {
+            driftForceIndexLUT = 0x16;
+        }
+        else
+        {
+            driftForceIndexLUT = raceProperties.HANDICAP_LUT[vehicleProperties.handicapAmount];
+        }
+
+        // Calculate X forces based on velocity and current force
+        if (vehicleProperties.xVelocityForceDifference >= raceProperties.DRIFT_FORCE_AMOUNT_LUT[driftForceIndexLUT])
+        {
+            if (vehicleProperties.xVelocity < vehicleProperties.xForce)
+            {
+                vehicleProperties.xForce += raceProperties.DRIFT_FORCE_AMOUNT_LUT[driftForceIndexLUT];
+            }
+            else if (vehicleProperties.xVelocity > vehicleProperties.xForce)
+            {
+                vehicleProperties.xForce -= raceProperties.DRIFT_FORCE_AMOUNT_LUT[driftForceIndexLUT];
+            }
+        }
+        else
+        {
+            vehicleProperties.xForce = vehicleProperties.xVelocity;
+        }
+
+        // Calculate Y forces based on velocity and current force
+        if (vehicleProperties.yVelocityForceDifference >= raceProperties.DRIFT_FORCE_AMOUNT_LUT[driftForceIndexLUT])
+        {
+            if (vehicleProperties.yVelocity < vehicleProperties.yForce)
+            {
+                vehicleProperties.yForce += raceProperties.DRIFT_FORCE_AMOUNT_LUT[driftForceIndexLUT];
+            }
+            else if (vehicleProperties.yVelocity > vehicleProperties.yForce)
+            {
+                vehicleProperties.yForce -= raceProperties.DRIFT_FORCE_AMOUNT_LUT[driftForceIndexLUT];
+            }
+        }
+        else
+        {
+            vehicleProperties.yForce = vehicleProperties.yVelocity;
+        }
+
+        // Decrease speed if not a chopper, drift timer is polled, and vehicle is moving
+        if (raceProperties.vehicleType != CHOPPERS && raceProperties.driftSpeedLossTimer == 0 && vehicleProperties.velocity != 0)
+        {
+            if (vehicleProperties.velocity < 0)
+            {
+                vehicleProperties.velocity++;
+            }
+            else
+            {
+                vehicleProperties.velocity--;
+            }
+        }
+
+        vehicleProperties.isDrifting = true;
+        if ((raceProperties.isChallengeMode && vehicleProperties.playerIndex != 0) || vehicleProperties.playerIndex >= 2 || vehicleProperties.driftSoundTimer != 0)
+        {
+            return;
+        }
+        byte soundIndex = DRIFT_SOUND_LUT[raceProperties.vehicleType];
+        PlayDriftSFX(ref vehicleProperties, soundIndex);
+    }
+
+    public void PlayDriftSFX(ref VehicleProperties vehicleProperties, byte soundIndex)
+    {
+        if (vehicleProperties.hasUnlimitedGrip)
+        {
+            return;
+        }
+        if (!vehicleProperties.sfx.Contains(soundIndex))
+        {
+            vehicleProperties.sfx.Add(soundIndex);
+        }
     }
 }

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
+using System;
 using UnityEngine.UI;
 using Vehicle.Shared;
 using Unity.VisualScripting;
@@ -69,13 +70,13 @@ public class VehicleMovement: MonoBehaviour {
         // TODO: temporary until proper sprites are used
         transform.eulerAngles = new Vector3(0, 0, -(vehicleProperties.heading / 63f) * 354.375f);
         // TODO: temporary until poll timers are really figured out
-        if (raceProperties.turnPollTimer == true)
+        if (raceProperties.turnPollTimer > 0)
         {
-            raceProperties.turnPollTimer = false;
+            raceProperties.turnPollTimer--;
         }
         else
         {
-            raceProperties.turnPollTimer = true;
+            raceProperties.turnPollTimer = VehiclePhysics.NORMAL_TURN_POLL_RATE;
         }
         if (raceProperties.tankSlowTurnPollTimer > 0)
         {
@@ -92,7 +93,14 @@ public class VehicleMovement: MonoBehaviour {
         else
         {
             raceProperties.tankSlowTurnPollTimer = VehiclePhysics.VELOCITY_POLL_RATE;
-
+        }
+        if (raceProperties.driftSpeedLossTimer > 0)
+        {
+            raceProperties.driftSpeedLossTimer--;
+        }
+        else
+        {
+            raceProperties.driftSpeedLossTimer = VehiclePhysics.DRIFT_SPEED_LOSS_RATE;
         }
     }
 
@@ -127,10 +135,11 @@ public class VehicleMovement: MonoBehaviour {
         switch (vehicleType)
         {
             case VehiclePhysics.POWERBOATS:
-                raceProperties.VELOCITY_SCALAR_X_LUT = VehiclePhysics.POWERBOATS_VELOCITY_SCALAR_X_LUT;
-                raceProperties.VELOCITY_SCALAR_Y_LUT = VehiclePhysics.POWERBOATS_VELOCITY_SCALAR_Y_LUT;
+                raceProperties.VELOCITY_SCALAR_X_LUT = Array.ConvertAll(VehiclePhysics.POWERBOATS_VELOCITY_SCALAR_X_LUT, b => unchecked((sbyte)b));
+                raceProperties.VELOCITY_SCALAR_Y_LUT = Array.ConvertAll(VehiclePhysics.POWERBOATS_VELOCITY_SCALAR_Y_LUT, b => unchecked((sbyte)b));
                 raceProperties.HANDICAP_LUT = VehiclePhysics.POWERBOATS_HANDICAP_LUT;
                 raceProperties.DRIFT_THRESHOLD_LUT = VehiclePhysics.POWERBOATS_DRIFT_THRESHOLD_LUT;
+                raceProperties.DRIFT_FORCE_AMOUNT_LUT = VehiclePhysics.POWERBOATS_DRIFT_FORCE_AMOUNT_LUT;
                 break;
             default:
                 break;
