@@ -1762,21 +1762,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d58a3a5ea88b514faebfdef5ce42659, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameVersion: 1
+  gameVersion: 0
   vehicleProperties:
     controllerLeft: 0
     controllerRight: 0
     controllerAccelerate: 0
     controllerBrake: 0
-    vehicleType: 1
+    gripChangeTimer: 0
+    playerIndex: 0
     spawnState: 0
     isMoving: 0
+    canReleaseDriftParticles: 0
+    terrainType: 0
+    hasUnlimitedGrip: 0
+    handicapAmount: 0
     heading: 0
     velocity: 0
+    altitude: 0
+    xVelocity: 0
+    yVelocity: 0
+    xForce: 0
+    yForce: 0
+    xVelocityForceDifference: 0
+    yVelocityForceDifference: 0
+    xyVelocityForceDifferenceMagnitude: 0
   raceProperties:
     countdownTimer: 0
-    turnDelay: 0
-    tankSlowTurnDelay: 0
+    turnPollTimer: 0
+    tankSlowTurnPollTimer: 0
+    velocityPollTimer: 0
+    vehicleType: 1
+    hasUnlimitedGrip: 0
+    VELOCITY_SCALAR_X_LUT: 
+    VELOCITY_SCALAR_Y_LUT: 
+    HANDICAP_LUT: 
+    DRIFT_THRESHOLD_LUT: 
 --- !u!212 &1797796963
 SpriteRenderer:
   m_ObjectHideFlags: 0

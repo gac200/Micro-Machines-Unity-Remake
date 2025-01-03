@@ -1,4 +1,6 @@
 using System;
+using System.Net;
+using System.Reflection.Emit;
 using Unity.VisualScripting;
 using UnityEngine;
 using Vehicle.Shared;
@@ -109,7 +111,7 @@ public class NESPhysics : VehiclePhysics
         }
     }
 
-    public override void CalculateVelocityVector(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
+    public override void CalculateVelocityScalars(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
     {
         // Do not add velocity if it's not the current player's turn to get calculated
         if (vehicleProperties.playerIndex != raceProperties.velocityPollTimer)
@@ -117,25 +119,108 @@ public class NESPhysics : VehiclePhysics
             return;
         }
 
-        // Calculate the reverse velocity vector
-        int speed;
+        // Calculate delta in X direction
+        int speed = Math.Abs(vehicleProperties.velocity);
         int xScalar;
-        int yScalar;
         if (vehicleProperties.velocity < 0)
         {
-            speed = Math.Abs(vehicleProperties.velocity);
             xScalar = -raceProperties.VELOCITY_SCALAR_X_LUT[vehicleProperties.heading];
-            speed = ApplyVelocityScalar(ref vehicleProperties, ref raceProperties, xScalar, speed);
         }
         else
         {
-            speed = vehicleProperties.velocity;
+            xScalar = raceProperties.VELOCITY_SCALAR_X_LUT[vehicleProperties.heading];
         }
+        vehicleProperties.xVelocity = MultiplyDeltaFromVelocity(xScalar, speed);
+        // TODO: find what terrain type 0x12 is and if this is correct
+        //       It seems like it adds 2 to the high byte of x velocity
+        //       There is not similar code for y velocity
+        if (vehicleProperties.terrainType == 0x12)
+        {
+            vehicleProperties.xVelocity += 0x200;
+        }
+
+        // Calculate delta in Y direction
+        int yScalar;
+        if (vehicleProperties.velocity < 0)
+        {
+            yScalar = -raceProperties.VELOCITY_SCALAR_Y_LUT[vehicleProperties.heading];
+        }
+        else
+        {
+            yScalar = raceProperties.VELOCITY_SCALAR_Y_LUT[vehicleProperties.heading];
+        }
+        vehicleProperties.yVelocity = MultiplyDeltaFromVelocity(yScalar, speed);
     }
 
-    //TODO: finish
-    public int ApplyVelocityScalar(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties, int scalar, int speed)
+    public int MultiplyDeltaFromVelocity(int scalar, int speed)
     {
-        return speed;
+        return scalar * speed;
+    }
+
+    public override void CalculateVelocityEffects(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
+    {
+        // Calculate differences
+        vehicleProperties.xVelocityForceDifference = vehicleProperties.xVelocity - vehicleProperties.xForce;
+        vehicleProperties.yVelocityForceDifference = vehicleProperties.yVelocity - vehicleProperties.yForce;
+
+        // Take absolute values if differences are negative
+        if (vehicleProperties.xVelocityForceDifference < 0)
+        {
+            vehicleProperties.xVelocityForceDifference = Math.Abs(vehicleProperties.xVelocityForceDifference);
+        }
+
+        if (vehicleProperties.yVelocityForceDifference < 0)
+        {
+            vehicleProperties.yVelocityForceDifference = Math.Abs(vehicleProperties.yVelocityForceDifference);
+        }
+
+        // Check if vehicle should drift or be affected by external friction
+        int driftThresholdIndexLUT = 0;
+        if (!vehicleProperties.hasUnlimitedGrip)
+        {
+            goto Label8596;
+        }
+        driftThresholdIndexLUT = 0x15;
+        goto Label85B4;
+
+        Label8596:
+            if (!raceProperties.hasUnlimitedGrip)
+            {
+                goto Label859F;
+            }
+            if (vehicleProperties.playerIndex == 0)
+            {
+                goto Label85CD;
+            }
+
+        Label859F:
+            if (vehicleProperties.gripChangeTimer == 0)
+            {
+                goto Label85AE;
+            }
+            if (vehicleProperties.gripChangeTimer < 0)
+            {
+                Debug.Log("DecreaseTimerAndCalculateExternalFriction()");
+                //DecreaseTimerAndCalculateExternalFriction();
+            }
+            vehicleProperties.gripChangeTimer--;
+            driftThresholdIndexLUT = 0;
+            goto Label85B4;
+
+        Label85AE:
+            driftThresholdIndexLUT = raceProperties.HANDICAP_LUT[driftThresholdIndexLUT];
+
+        Label85B4:
+            vehicleProperties.xyVelocityForceDifferenceMagnitude = vehicleProperties.yVelocityForceDifference + vehicleProperties.xVelocityForceDifference;
+            if (vehicleProperties.xyVelocityForceDifferenceMagnitude >= driftThresholdIndexLUT)
+            {
+                Debug.Log("CalculateExternalFriction()");
+                //CalculateExternalFriction();
+            }
+
+        Label85CD:
+            vehicleProperties.xForce = vehicleProperties.xVelocity;
+            vehicleProperties.yForce = vehicleProperties.yVelocity;
+
     }
 }

@@ -37,6 +37,7 @@ public class VehicleMovement: MonoBehaviour {
         LoadVehicleProperties(raceProperties.vehicleType);
         raceProperties.tankSlowTurnPollTimer = VehiclePhysics.TANK_SLOW_TURN_POLL_RATE;
         raceProperties.velocityPollTimer = VehiclePhysics.VELOCITY_POLL_RATE;
+        vehicleProperties.handicapAmount = 0x10;
     }
     private void OnEnable()
     {
@@ -55,13 +56,16 @@ public class VehicleMovement: MonoBehaviour {
         if (vehicleProperties.altitude == 0 && vehicleProperties.terrainType != 14)
         {
             // TODO: implement
-            vehiclePhysics.CalculateVelocityVector(ref vehicleProperties, ref raceProperties);
-            //vehiclePhysics.$8544();
+            vehiclePhysics.CalculateVelocityScalars(ref vehicleProperties, ref raceProperties);
+            vehiclePhysics.CalculateVelocityEffects(ref vehicleProperties, ref raceProperties); ;
             if (raceProperties.vehicleType != VehiclePhysics.POWERBOATS)
             {
                 //vehiclePhysics.$9543();
             }
         }
+        //vehiclePhysics.$8265
+        //vehiclePhysics.$EA96
+        //vehiclePhysics.$DD5B
         // TODO: temporary until proper sprites are used
         transform.eulerAngles = new Vector3(0, 0, -(vehicleProperties.heading / 63f) * 354.375f);
         // TODO: temporary until poll timers are really figured out
@@ -125,6 +129,8 @@ public class VehicleMovement: MonoBehaviour {
             case VehiclePhysics.POWERBOATS:
                 raceProperties.VELOCITY_SCALAR_X_LUT = VehiclePhysics.POWERBOATS_VELOCITY_SCALAR_X_LUT;
                 raceProperties.VELOCITY_SCALAR_Y_LUT = VehiclePhysics.POWERBOATS_VELOCITY_SCALAR_Y_LUT;
+                raceProperties.HANDICAP_LUT = VehiclePhysics.POWERBOATS_HANDICAP_LUT;
+                raceProperties.DRIFT_THRESHOLD_LUT = VehiclePhysics.POWERBOATS_DRIFT_THRESHOLD_LUT;
                 break;
             default:
                 break;

@@ -23,7 +23,8 @@ public abstract class VehiclePhysics
     public const int TANK_SLOW_TURN_POLL_RATE = 3;
     public const int VELOCITY_POLL_RATE = 3;
     public abstract void Turn(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties);
-    public abstract void CalculateVelocityVector(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties);
+    public abstract void CalculateVelocityScalars(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties);
+    public abstract void CalculateVelocityEffects(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties);
 
     // Lookup Tables
     public readonly byte[] HEADING_CLAMP_LUT =
@@ -53,4 +54,12 @@ public abstract class VehiclePhysics
          0x2D, 0x29, 0x24, 0x1E, 0x18, 0x13, 0x0C, 0x06,
          0x00, 0xFA, 0xF4, 0xED, 0xE8, 0xE2, 0xDC, 0xD7,
          0xD3, 0xCF, 0xCB, 0xC8, 0xC5, 0xC3, 0xC1, 0xC0};
+    public static readonly byte[] POWERBOATS_HANDICAP_LUT =
+        {0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0B, 0x0C,
+         0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x12, 0x13, 0x14,
+         0x15, 0x15, 0x15, 0x15, 0x15, 0x15};
+    public static readonly ushort[] POWERBOATS_DRIFT_THRESHOLD_LUT =
+        {0x0000, 0x0010, 0x0020, 0x0030, 0x0040, 0x0050, 0x0060, 0x0070,
+         0x0080, 0x0090, 0x00A0, 0x00B0, 0x00C0, 0x00D0, 0x00E0, 0x00F0,
+         0x0100, 0x0110, 0x0120, 0x0130, 0x0140, 0x0150};
 }
