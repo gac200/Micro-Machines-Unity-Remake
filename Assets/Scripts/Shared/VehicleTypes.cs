@@ -30,6 +30,8 @@ namespace Vehicle.Shared
         public sbyte handicapAmount;
 
         // Vehicle Motion and Position
+        public int xPosition;
+        public int yPosition;
         public sbyte heading;
         public sbyte velocity;
         public sbyte altitude;
@@ -40,6 +42,9 @@ namespace Vehicle.Shared
         public short xVelocityForceDifference;
         public short yVelocityForceDifference;
         public short xyVelocityForceDifferenceMagnitude;
+        public byte xPositionPrecisionBits;
+        public byte unk03F4;
+        public byte unk03FC;
 
         // Sound
         // not like original, but allows multiple sfx at once

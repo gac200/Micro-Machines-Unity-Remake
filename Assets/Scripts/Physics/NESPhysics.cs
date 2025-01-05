@@ -65,7 +65,7 @@ public class NESPhysics : VehiclePhysics
     public void TurnTanks(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
     {
         // Do not turn if in an undriveable state
-        if (vehicleProperties.spawnState != 0)
+        if (vehicleProperties.spawnState != ALIVE)
         {
             return;
         }
@@ -77,14 +77,9 @@ public class NESPhysics : VehiclePhysics
             return;
         }
 
-        // Do not turn if not polled at the normal turn rate and not acc/decelerating
-        if (raceProperties.turnPollTimer == 0 && !vehicleProperties.controllerAccelerate && !vehicleProperties.controllerBrake)
-        {
-            return;
-        }
-
-        // Do not turn if not polled at the tank turn rate and acc/decelerating
-        if (raceProperties.tankSlowTurnPollTimer != 0 && (vehicleProperties.controllerAccelerate || vehicleProperties.controllerBrake))
+        // Do not turn if not polled at any turn rate and int the incorrect acceleration state
+        if ((raceProperties.turnPollTimer == 0 && !vehicleProperties.controllerAccelerate && !vehicleProperties.controllerBrake)
+            || (raceProperties.tankSlowTurnPollTimer != 0 && (vehicleProperties.controllerAccelerate || vehicleProperties.controllerBrake)))
         {
             return;
         }
