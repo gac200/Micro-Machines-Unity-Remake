@@ -32,19 +32,25 @@ namespace Vehicle.Shared
         // Vehicle Motion and Position
         public int xPosition;
         public int yPosition;
+        public sbyte zPosition;
         public sbyte heading;
         public sbyte velocity;
-        public sbyte altitude;
         public short xVelocity;
         public short yVelocity;
         public short xForce;
         public short yForce;
+        public sbyte zForce;
         public short xVelocityForceDifference;
         public short yVelocityForceDifference;
         public short xyVelocityForceDifferenceMagnitude;
-        public byte xPositionPrecisionBits;
-        public byte unk03F4;
-        public byte unk03FC;
+
+        // Other Properties
+        public byte bounceBehavior;
+        public sbyte checkpointIndex;
+
+        //TODO: implement
+        public int lastXPosition;
+        public int lastYPosition;
 
         // Sound
         // not like original, but allows multiple sfx at once
@@ -60,6 +66,8 @@ namespace Vehicle.Shared
         public sbyte tankSlowTurnPollTimer;
         public sbyte velocityPollTimer;
         public sbyte driftSpeedLossTimer;
+        public sbyte changeZForceTimer1;
+        public sbyte changeZForceTimer2;
 
         // General Properties
         public sbyte vehicleType;

@@ -18,14 +18,17 @@ public abstract class VehiclePhysics
     // Vehicle states
     public const int ALIVE = 0;
 
-    // Polling Properties
+    // Timer Properties
     public const int NORMAL_TURN_POLL_RATE = 1;
     public const int TANK_SLOW_TURN_POLL_RATE = 3;
     public const int VELOCITY_POLL_RATE = 3;
     public const int DRIFT_SPEED_LOSS_RATE = 6;
+    public const int CHANGE_Z_FORCE_TIMER_1_RATE = 2;
+    public const int CHANGE_Z_FORCE_TIMER_2_RATE = 1;
     public abstract void Turn(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties);
     public abstract void CalculateVelocityScalars(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties);
     public abstract void CalculateVelocityEffects(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties);
+    public abstract void CalculateVerticalForces(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties);
 
     // Lookup Tables
     public static readonly sbyte[] HEADING_CLAMP_LUT =
@@ -42,6 +45,10 @@ public abstract class VehiclePhysics
     public static readonly byte[] DRIFT_SOUND_LUT =
     {
         0x0B, 0x00, 0x0B, 0x00, 0x0B, 0x0B, 0x00, 0x00, 0x00
+    };
+    public static readonly byte[] BOUNCE_AMOUNT_LUT =
+    {
+        0x02, 0x01, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02
     };
     public static readonly byte[] POWERBOATS_VELOCITY_SCALAR_X_LUT =
     {

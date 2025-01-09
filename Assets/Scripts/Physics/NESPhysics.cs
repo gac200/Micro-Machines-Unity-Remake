@@ -12,98 +12,102 @@ public class NESPhysics : VehiclePhysics
     public override void Turn(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
     {
         // Disable turning if countdown timer is not done
-        if (raceProperties.countdownTimer > 0)
+        if (raceProperties.countdownTimer == 0)
         {
-            return;
-        }
-
-        // Alternate turning logic for tanks
-        if (raceProperties.vehicleType == TANKS)
-        {
-            TurnTanks(ref vehicleProperties, ref raceProperties);
-            return;
-        }
-
-        // Do not turn if not polled at the turn rate or in an undriveable state
-        if (raceProperties.turnPollTimer == 0 || vehicleProperties.spawnState != ALIVE)
-        {
-            // Clamp heading when not turning
-            if (!vehicleProperties.controllerLeft && !vehicleProperties.controllerRight)
+            // Alternate turning logic for tanks
+            if (raceProperties.vehicleType == TANKS)
             {
-                vehicleProperties.heading = HEADING_CLAMP_LUT[vehicleProperties.heading];
+                // Do not turn if in an undriveable state
+                if (vehicleProperties.spawnState == ALIVE)
+                {
+                    // Clamp heading when not turning
+                    if (!vehicleProperties.controllerLeft && !vehicleProperties.controllerRight)
+                    {
+                        vehicleProperties.heading = HEADING_CLAMP_LUT[vehicleProperties.heading];
+                    }
+                    else
+                    {
+                        // Do not turn if not polled at any turn rate and in the incorrect acceleration state
+                        if (!vehicleProperties.controllerAccelerate && !vehicleProperties.controllerBrake && !vehicleProperties.isAIControlledSpeed)
+                        {
+                            if (raceProperties.turnPollTimer != 0)
+                            {
+                                return;
+                            }
+                        }
+                        else if (raceProperties.tankSlowTurnPollTimer != 0)
+                        {
+                            return;
+                        }
+
+                        // Turn in direction of controller input
+                        // Intentionally prioritizes left to match original behavior
+                        if (vehicleProperties.controllerLeft)
+                        {
+                            vehicleProperties.heading--;
+                        }
+                        else if (vehicleProperties.controllerRight)
+                        {
+                            vehicleProperties.heading++;
+                        }
+
+                        // Clamp direction between 0 and 63
+                        if (vehicleProperties.heading < 0)
+                        {
+                            vehicleProperties.heading = 63;
+                        }
+                        else if (vehicleProperties.heading > 63)
+                        {
+                            vehicleProperties.heading = 0;
+                        }
+                    }
+                }
             }
-            return;
-        }
 
-        // Move forward if turning while not moving and not a chopper
-        if ((vehicleProperties.controllerLeft || vehicleProperties.controllerRight) && !vehicleProperties.isMoving && raceProperties.vehicleType != CHOPPERS) {
-            vehicleProperties.velocity = 1;
-        }
+            // Do not turn if not polled at the turn rate or in an undriveable state
+            else if (raceProperties.turnPollTimer == 1 && vehicleProperties.spawnState == ALIVE)
+            {
+                // Clamp heading when not turning
+                if (!vehicleProperties.controllerLeft && !vehicleProperties.controllerRight)
+                {
+                    vehicleProperties.heading = HEADING_CLAMP_LUT[vehicleProperties.heading];
+                }
+                else
+                {
+                    // Move forward if turning while not moving and not a chopper
+                    if (!vehicleProperties.isMoving && raceProperties.vehicleType != CHOPPERS)
+                    {
+                        vehicleProperties.velocity = 1;
+                    }
 
-        // Turn in direction of controller input
-        // Intentionally prioritizes left to match original behavior
-        if (vehicleProperties.controllerLeft)
-        {
-            vehicleProperties.heading--;
-        }
-        else if (vehicleProperties.controllerRight)
-        {
-            vehicleProperties.heading++;
-        }
+                    // Turn in direction of controller input
+                    // Intentionally prioritizes left to match original behavior
+                    if (vehicleProperties.controllerLeft)
+                    {
+                        vehicleProperties.heading--;
+                    }
+                    else if (vehicleProperties.controllerRight)
+                    {
+                        vehicleProperties.heading++;
+                    }
 
-        // Clamp direction between 0 and 63
-        if (vehicleProperties.heading < 0)
-        {
-            vehicleProperties.heading = 63;
-        }
-        else if (vehicleProperties.heading > 63)
-        {
-            vehicleProperties.heading = 0;
+                    // Clamp direction between 0 and 63
+                    if (vehicleProperties.heading < 0)
+                    {
+                        vehicleProperties.heading = 63;
+                    }
+                    else if (vehicleProperties.heading > 63)
+                    {
+                        vehicleProperties.heading = 0;
+                    }
+                }
+            }
         }
     }
 
     public void TurnTanks(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
     {
-        // Do not turn if in an undriveable state
-        if (vehicleProperties.spawnState != ALIVE)
-        {
-            return;
-        }
-
-        // Clamp heading when not turning
-        if (!vehicleProperties.controllerLeft && !vehicleProperties.controllerRight)
-        {
-            vehicleProperties.heading = HEADING_CLAMP_LUT[vehicleProperties.heading];
-            return;
-        }
-
-        // Do not turn if not polled at any turn rate and int the incorrect acceleration state
-        if ((raceProperties.turnPollTimer == 0 && !vehicleProperties.controllerAccelerate && !vehicleProperties.controllerBrake)
-            || (raceProperties.tankSlowTurnPollTimer != 0 && (vehicleProperties.controllerAccelerate || vehicleProperties.controllerBrake)))
-        {
-            return;
-        }
-
-        // Turn in direction of controller input
-        // Intentionally prioritizes left to match original behavior
-        if (vehicleProperties.controllerLeft)
-        {
-            vehicleProperties.heading--;
-        }
-        else if (vehicleProperties.controllerRight)
-        {
-            vehicleProperties.heading++;
-        }
-
-        // Clamp direction between 0 and 63
-        if (vehicleProperties.heading < 0)
-        {
-            vehicleProperties.heading = 63;
-        }
-        else if (vehicleProperties.heading > 63)
-        {
-            vehicleProperties.heading = 0;
-        }
+        
     }
 
     public override void CalculateVelocityScalars(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
@@ -289,6 +293,61 @@ public class NESPhysics : VehiclePhysics
         if (!vehicleProperties.sfx.Contains(soundIndex))
         {
             vehicleProperties.sfx.Add(soundIndex);
+        }
+    }
+
+    public override void CalculateVerticalForces(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
+    {
+        // Don't allow negative Z Position if Z Force is positive
+        sbyte newZPosition = (sbyte)(vehicleProperties.zPosition + vehicleProperties.zForce);
+        if (vehicleProperties.zForce >= 0)
+        {
+            if (newZPosition < 0) {
+                newZPosition = 0x7F;
+            }
+        }
+        vehicleProperties.zPosition = newZPosition;
+
+        // Find whether to bounce or not
+        if (vehicleProperties.zPosition <= 0)
+        {
+            CalculateVerticalBounce(ref vehicleProperties, ref raceProperties);
+            return;
+        }
+        if (vehicleProperties.bounceBehavior == 1 && raceProperties.changeZForceTimer1 != 0)
+        {
+            return;
+        }
+        if (raceProperties.changeZForceTimer2 != 0)
+        {
+            return;
+        }
+        vehicleProperties.zForce -= 1;
+    }
+
+    public static void CalculateVerticalBounce(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
+    {
+        sbyte newZPosition = vehicleProperties.zPosition;
+        if (vehicleProperties.zForce == 0)
+        {
+            return;
+        }
+        if (vehicleProperties.bounceBehavior == 2)
+        {
+            vehicleProperties.checkpointIndex = -1;
+            //PhysicsReset();
+            //newZPosition = unkE193(9);
+        }
+        else
+        {
+            // 82B9 to 82C7
+            if (BOUNCE_AMOUNT_LUT[raceProperties.vehicleType] + newZPosition >= 0)
+            {
+                //if (vehicleProperties.unk0438 >= 0)
+                //{
+                //    doC59F();
+                //}
+            }
         }
     }
 }
