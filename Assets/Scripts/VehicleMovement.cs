@@ -69,7 +69,7 @@ public class VehicleMovement: MonoBehaviour {
         if (vehicleProperties.zPosition == 0 && vehicleProperties.terrainType != 14)
         {
             vehiclePhysics.CalculateVelocityScalars(ref vehicleProperties, ref raceProperties);
-            //vehiclePhysics.CalculateVelocityEffects(ref vehicleProperties, ref raceProperties); ;
+            vehiclePhysics.CalculateVelocityEffects(ref vehicleProperties, ref raceProperties); ;
             if (raceProperties.vehicleType == VehiclePhysics.POWERBOATS)
             {
                 // TODO: implement

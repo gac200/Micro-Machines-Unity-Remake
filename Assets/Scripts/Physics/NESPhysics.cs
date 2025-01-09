@@ -3,6 +3,7 @@ using System.Net;
 using System.Reflection.Emit;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Vehicle.Shared;
 using static Unity.Burst.Intrinsics.X86.Avx;
 using static UnityEngine.InputSystem.Controls.AxisControl;
@@ -113,47 +114,40 @@ public class NESPhysics : VehiclePhysics
     public override void CalculateVelocityScalars(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
     {
         // Do not add velocity if it's not the current player's turn to get calculated
-        if (vehicleProperties.playerIndex != raceProperties.velocityPollTimer)
+        if (vehicleProperties.playerIndex == raceProperties.velocityPollTimer)
         {
-            return;
-        }
+            // Calculate delta in X direction
+            sbyte speed = Math.Abs(vehicleProperties.velocity);
+            sbyte xScalar;
+            if (vehicleProperties.velocity < 0)
+            {
+                xScalar = (sbyte)-raceProperties.VELOCITY_SCALAR_X_LUT[vehicleProperties.heading];
+            }
+            else
+            {
+                xScalar = raceProperties.VELOCITY_SCALAR_X_LUT[vehicleProperties.heading];
+            }
+            vehicleProperties.xVelocity = (short)(xScalar * speed);
+            // TODO: find what terrain type 0x12 is and if this is correct
+            //       It seems like it adds 2 to the high byte of x velocity
+            //       There is not similar code for y velocity
+            if (vehicleProperties.terrainType == 0x12)
+            {
+                vehicleProperties.xVelocity += 0x200;
+            }
 
-        // Calculate delta in X direction
-        sbyte speed = Math.Abs(vehicleProperties.velocity);
-        sbyte xScalar;
-        if (vehicleProperties.velocity < 0)
-        {
-            xScalar = (sbyte)-raceProperties.VELOCITY_SCALAR_X_LUT[vehicleProperties.heading];
+            // Calculate delta in Y direction
+            sbyte yScalar;
+            if (vehicleProperties.velocity < 0)
+            {
+                yScalar = (sbyte)-raceProperties.VELOCITY_SCALAR_Y_LUT[vehicleProperties.heading];
+            }
+            else
+            {
+                yScalar = raceProperties.VELOCITY_SCALAR_Y_LUT[vehicleProperties.heading];
+            }
+            vehicleProperties.yVelocity = (short)(yScalar * speed);
         }
-        else
-        {
-            xScalar = raceProperties.VELOCITY_SCALAR_X_LUT[vehicleProperties.heading];
-        }
-        vehicleProperties.xVelocity = MultiplyDeltaFromVelocity(xScalar, speed);
-        // TODO: find what terrain type 0x12 is and if this is correct
-        //       It seems like it adds 2 to the high byte of x velocity
-        //       There is not similar code for y velocity
-        if (vehicleProperties.terrainType == 0x12)
-        {
-            vehicleProperties.xVelocity += 0x200;
-        }
-
-        // Calculate delta in Y direction
-        sbyte yScalar;
-        if (vehicleProperties.velocity < 0)
-        {
-            yScalar = (sbyte)-raceProperties.VELOCITY_SCALAR_Y_LUT[vehicleProperties.heading];
-        }
-        else
-        {
-            yScalar = raceProperties.VELOCITY_SCALAR_Y_LUT[vehicleProperties.heading];
-        }
-        vehicleProperties.yVelocity = MultiplyDeltaFromVelocity(yScalar, speed);
-    }
-
-    public short MultiplyDeltaFromVelocity(sbyte scalar, sbyte speed)
-    {
-        return (short)(scalar * speed);
     }
 
     public override void CalculateVelocityEffects(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
