@@ -27,7 +27,7 @@ public abstract class VehiclePhysics
     public const int CHANGE_Z_FORCE_TIMER_2_RATE = 1;
     public abstract void Turn(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties);
     public abstract void CalculateVelocityScalars(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties);
-    public abstract void CalculateVelocityEffects(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties);
+    public abstract void CalculateVelocityForces(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties);
     public abstract void CalculateVerticalForces(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties);
 
     // Lookup Tables

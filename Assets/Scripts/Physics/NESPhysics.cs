@@ -150,7 +150,7 @@ public class NESPhysics : VehiclePhysics
         }
     }
 
-    public override void CalculateVelocityEffects(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
+    public override void CalculateVelocityForces(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
     {
         // Calculate differences
         vehicleProperties.xVelocityForceDifference = (short)Math.Abs(vehicleProperties.xVelocity - vehicleProperties.xForce);
@@ -158,48 +158,45 @@ public class NESPhysics : VehiclePhysics
 
         // Check if vehicle should drift or be affected by external friction
         int driftThresholdIndexLUT = 0;
-        if (!vehicleProperties.hasUnlimitedGrip)
+        if (!vehicleProperties.hasUnlimitedGrip && (!raceProperties.hasUnlimitedGrip || vehicleProperties.playerIndex != 0))
         {
-            if (raceProperties.hasUnlimitedGrip && vehicleProperties.playerIndex == 0)
+            if (vehicleProperties.gripChangeTimer >= 0)
             {
-                goto ApplyForces;
-            }
-            else
-            {
+                if (vehicleProperties.gripChangeTimer > 0)
+                {
+                    vehicleProperties.gripChangeTimer--;
+                    driftThresholdIndexLUT = 0;
+                }
                 if (vehicleProperties.gripChangeTimer == 0)
                 {
                     driftThresholdIndexLUT = raceProperties.HANDICAP_LUT[vehicleProperties.handicapAmount];
                 }
-                else if (vehicleProperties.gripChangeTimer < 0)
+                vehicleProperties.xyVelocityForceDifferenceMagnitude = (short)(vehicleProperties.yVelocityForceDifference + vehicleProperties.xVelocityForceDifference);
+                if (vehicleProperties.xyVelocityForceDifferenceMagnitude >= raceProperties.DRIFT_THRESHOLD_LUT[driftThresholdIndexLUT])
                 {
-                    vehicleProperties.gripChangeTimer--;
-                    if (vehicleProperties.gripChangeTimer < -127)
-                    {
-                        vehicleProperties.gripChangeTimer = 0;
-                    }
-                    goto ApplyForces;
+                    CalculateExternalFriction(ref vehicleProperties, ref raceProperties);
                 }
-                else
+            }
+            else if (vehicleProperties.gripChangeTimer < 0)
+            {
+                vehicleProperties.gripChangeTimer--;
+                if (vehicleProperties.gripChangeTimer >= 0)
                 {
-                    vehicleProperties.gripChangeTimer--;
-                    driftThresholdIndexLUT = 0;
+                    vehicleProperties.gripChangeTimer = 0;
                 }
             }
         }
         else
         {
             driftThresholdIndexLUT = 0x15;
+            vehicleProperties.xyVelocityForceDifferenceMagnitude = (short)(vehicleProperties.yVelocityForceDifference + vehicleProperties.xVelocityForceDifference);
+            if (vehicleProperties.xyVelocityForceDifferenceMagnitude >= raceProperties.DRIFT_THRESHOLD_LUT[driftThresholdIndexLUT])
+            {
+                CalculateExternalFriction(ref vehicleProperties, ref raceProperties);
+            }
         }
-        vehicleProperties.xyVelocityForceDifferenceMagnitude = (short)(vehicleProperties.yVelocityForceDifference + vehicleProperties.xVelocityForceDifference);
-        if (vehicleProperties.xyVelocityForceDifferenceMagnitude >= raceProperties.DRIFT_THRESHOLD_LUT[driftThresholdIndexLUT])
-        {
-            CalculateExternalFriction(ref vehicleProperties, ref raceProperties);
-            return;
-        }
-    ApplyForces:
         vehicleProperties.xForce = vehicleProperties.xVelocity;
         vehicleProperties.yForce = vehicleProperties.yVelocity;
-
     }
     public void CalculateExternalFriction(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
     {
@@ -270,15 +267,17 @@ public class NESPhysics : VehiclePhysics
         }
 
         vehicleProperties.isDrifting = true;
-        if ((raceProperties.isChallengeMode && vehicleProperties.playerIndex != 0) || vehicleProperties.playerIndex >= 2 || vehicleProperties.driftSoundTimer != 0)
+
+        // There is more logic to determine whether to play drift sounds in the original,
+        // but that is unnecessary now that we have more sound channels.
+        if (vehicleProperties.driftSoundTimer == 0)
         {
-            return;
+            byte soundIndex = DRIFT_SOUND_LUT[raceProperties.vehicleType];
+            PlayNonEngineSFX(ref vehicleProperties, soundIndex);
         }
-        byte soundIndex = DRIFT_SOUND_LUT[raceProperties.vehicleType];
-        PlayDriftSFX(ref vehicleProperties, soundIndex);
     }
 
-    public void PlayDriftSFX(ref VehicleProperties vehicleProperties, byte soundIndex)
+    public void PlayNonEngineSFX(ref VehicleProperties vehicleProperties, byte soundIndex)
     {
         if (vehicleProperties.hasUnlimitedGrip)
         {

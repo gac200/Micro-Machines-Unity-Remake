@@ -69,7 +69,7 @@ public class VehicleMovement: MonoBehaviour {
         if (vehicleProperties.zPosition == 0 && vehicleProperties.terrainType != 14)
         {
             vehiclePhysics.CalculateVelocityScalars(ref vehicleProperties, ref raceProperties);
-            vehiclePhysics.CalculateVelocityEffects(ref vehicleProperties, ref raceProperties); ;
+            vehiclePhysics.CalculateVelocityForces(ref vehicleProperties, ref raceProperties); ;
             if (raceProperties.vehicleType == VehiclePhysics.POWERBOATS)
             {
                 // TODO: implement
@@ -79,6 +79,10 @@ public class VehicleMovement: MonoBehaviour {
         if (vehicleProperties.xForce != 0 || vehicleProperties.yForce != 0)
         {
             vehicleProperties.isMoving = true;
+        }
+        else
+        {
+            vehicleProperties.isMoving = false;
         }
 
         vehicleProperties.xPosition += vehicleProperties.xForce;
@@ -171,6 +175,7 @@ public class VehicleMovement: MonoBehaviour {
         {
             raceProperties.changeZForceTimer2 = VehiclePhysics.CHANGE_Z_FORCE_TIMER_2_RATE;
         }
+        vehicleProperties.isDrifting = false;
         Vector3 newPosition = new Vector3(vehicleProperties.xPosition / 256f, -vehicleProperties.yPosition / 256f, vehicleProperties.zPosition);
         transform.position = newPosition;
     }
