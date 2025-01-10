@@ -18,51 +18,8 @@ public class NESPhysics : VehiclePhysics
             // Alternate turning logic for tanks
             if (raceProperties.vehicleType == TANKS)
             {
-                // Do not turn if in an undriveable state
-                if (vehicleProperties.spawnState == ALIVE)
-                {
-                    // Clamp heading when not turning
-                    if (!vehicleProperties.controllerLeft && !vehicleProperties.controllerRight)
-                    {
-                        vehicleProperties.heading = HEADING_CLAMP_LUT[vehicleProperties.heading];
-                    }
-                    else
-                    {
-                        // Do not turn if not polled at any turn rate and in the incorrect acceleration state
-                        if (!vehicleProperties.controllerAccelerate && !vehicleProperties.controllerBrake && !vehicleProperties.isAIControlledSpeed)
-                        {
-                            if (raceProperties.turnPollTimer != 0)
-                            {
-                                return;
-                            }
-                        }
-                        else if (raceProperties.tankSlowTurnPollTimer != 0)
-                        {
-                            return;
-                        }
-
-                        // Turn in direction of controller input
-                        // Intentionally prioritizes left to match original behavior
-                        if (vehicleProperties.controllerLeft)
-                        {
-                            vehicleProperties.heading--;
-                        }
-                        else if (vehicleProperties.controllerRight)
-                        {
-                            vehicleProperties.heading++;
-                        }
-
-                        // Clamp direction between 0 and 63
-                        if (vehicleProperties.heading < 0)
-                        {
-                            vehicleProperties.heading = 63;
-                        }
-                        else if (vehicleProperties.heading > 63)
-                        {
-                            vehicleProperties.heading = 0;
-                        }
-                    }
-                }
+                TurnTanks(ref vehicleProperties, ref raceProperties);
+                return;
             }
 
             // Do not turn if not polled at the turn rate or in an undriveable state
@@ -108,7 +65,51 @@ public class NESPhysics : VehiclePhysics
 
     public void TurnTanks(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
     {
-        
+        // Do not turn if in an undriveable state
+        if (vehicleProperties.spawnState == ALIVE)
+        {
+            // Clamp heading when not turning
+            if (!vehicleProperties.controllerLeft && !vehicleProperties.controllerRight)
+            {
+                vehicleProperties.heading = HEADING_CLAMP_LUT[vehicleProperties.heading];
+            }
+            else
+            {
+                // Do not turn if not polled at any turn rate and in the incorrect acceleration state
+                if (!vehicleProperties.controllerAccelerate && !vehicleProperties.controllerBrake && !vehicleProperties.isAIControlledSpeed)
+                {
+                    if (raceProperties.turnPollTimer != 0)
+                    {
+                        return;
+                    }
+                }
+                else if (raceProperties.tankSlowTurnPollTimer != 0)
+                {
+                    return;
+                }
+
+                // Turn in direction of controller input
+                // Intentionally prioritizes left to match original behavior
+                if (vehicleProperties.controllerLeft)
+                {
+                    vehicleProperties.heading--;
+                }
+                else if (vehicleProperties.controllerRight)
+                {
+                    vehicleProperties.heading++;
+                }
+
+                // Clamp direction between 0 and 63
+                if (vehicleProperties.heading < 0)
+                {
+                    vehicleProperties.heading = 63;
+                }
+                else if (vehicleProperties.heading > 63)
+                {
+                    vehicleProperties.heading = 0;
+                }
+            }
+        }
     }
 
     public override void CalculateVelocityScalars(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
@@ -277,18 +278,6 @@ public class NESPhysics : VehiclePhysics
         }
     }
 
-    public void PlayNonEngineSFX(ref VehicleProperties vehicleProperties, byte soundIndex)
-    {
-        if (vehicleProperties.hasUnlimitedGrip)
-        {
-            return;
-        }
-        if (!vehicleProperties.sfx.Contains(soundIndex))
-        {
-            vehicleProperties.sfx.Add(soundIndex);
-        }
-    }
-
     public override void CalculateVerticalForces(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
     {
         // Don't allow negative Z Position if Z Force is positive
@@ -333,29 +322,55 @@ public class NESPhysics : VehiclePhysics
         }
     }
 
-    public static void CalculateVerticalBounce(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
+    public void CalculateVerticalBounce(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
     {
-        sbyte newZPosition = vehicleProperties.zPosition;
-        if (vehicleProperties.zForce == 0)
+        sbyte newZForce = vehicleProperties.zForce;
+        if (vehicleProperties.zForce != 0)
+        {
+            if (vehicleProperties.bounceBehavior == 2)
+            {
+                vehicleProperties.checkpointIndex = -1;
+                PhysicsReset(ref vehicleProperties);
+                unkE193(ref vehicleProperties, 9);
+                vehicleProperties.unk0438 = -1;
+                newZForce = 0;
+            }
+            else
+            {
+                newZForce += (sbyte)BOUNCE_AMOUNT_LUT[raceProperties.vehicleType];
+                if (newZForce >= 0)
+                {
+                    if (vehicleProperties.unk0438 >= 0)
+                    {
+                        unkC59F();
+                        vehicleProperties.unk0438 = -1;
+                    }
+                    newZForce = 0;
+                }
+            }
+            vehicleProperties.zForce = (sbyte)-newZForce;
+            vehicleProperties.zPosition = 0;
+            vehicleProperties.bounceBehavior = 0;
+            if (raceProperties.vehicleType != POWERBOATS)
+            {
+                PlayNonEngineSFX(ref vehicleProperties, 8);
+            }
+            else
+            {
+                PlayNonEngineSFX(ref vehicleProperties, 1);
+                vehicleProperties.unk04D4 = -1;
+            }
+        }
+    }
+    public void PlayNonEngineSFX(ref VehicleProperties vehicleProperties, byte soundIndex)
+    {
+        if (vehicleProperties.hasUnlimitedGrip)
         {
             return;
         }
-        if (vehicleProperties.bounceBehavior == 2)
+        if (!vehicleProperties.sfx.Contains(soundIndex))
         {
-            vehicleProperties.checkpointIndex = -1;
-            //PhysicsReset();
-            //newZPosition = unkE193(9);
-        }
-        else
-        {
-            // 82B9 to 82C7
-            if (BOUNCE_AMOUNT_LUT[raceProperties.vehicleType] + newZPosition >= 0)
-            {
-                //if (vehicleProperties.unk0438 >= 0)
-                //{
-                //    doC59F();
-                //}
-            }
+            vehicleProperties.sfx.Add(soundIndex);
         }
     }
 }
