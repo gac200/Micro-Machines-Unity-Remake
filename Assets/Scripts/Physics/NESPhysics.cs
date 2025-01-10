@@ -330,7 +330,7 @@ public class NESPhysics : VehiclePhysics
             if (vehicleProperties.bounceBehavior == 2)
             {
                 vehicleProperties.checkpointIndex = -1;
-                PhysicsReset(ref vehicleProperties);
+                PhysicsReset(ref vehicleProperties, ref raceProperties);
                 unkE193(ref vehicleProperties, 9);
                 vehicleProperties.unk0438 = -1;
                 newZForce = 0;
@@ -342,7 +342,7 @@ public class NESPhysics : VehiclePhysics
                 {
                     if (vehicleProperties.unk0438 >= 0)
                     {
-                        unkC59F();
+                        unkC59F(ref vehicleProperties, ref raceProperties);
                         vehicleProperties.unk0438 = -1;
                     }
                     newZForce = 0;
@@ -362,6 +362,51 @@ public class NESPhysics : VehiclePhysics
             }
         }
     }
+
+    public void unkE193(ref VehicleProperties vehicleProperties, sbyte spawnState)
+    {
+        vehicleProperties.spawnState = spawnState;
+        vehicleProperties.unk041C = 0;
+    }
+
+    public void PhysicsReset(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
+    {
+        vehicleProperties.xForce = 0;
+        vehicleProperties.yForce = 0;
+        vehicleProperties.xVelocity = 0;
+        vehicleProperties.yVelocity = 0;
+        vehicleProperties.isDrifting = false;
+        vehicleProperties.velocity = 0;
+        vehicleProperties.zPosition = 0;
+        vehicleProperties.zForce = 0;
+        vehicleProperties.controllerAccelerate = false;
+        vehicleProperties.controllerBrake = false;
+        vehicleProperties.controllerLeft = false;
+        vehicleProperties.controllerRight = false;
+        vehicleProperties.bounceBehavior = 0;
+        vehicleProperties.gripChangeTimer = 0;
+        unkC2D6(ref vehicleProperties, ref raceProperties);
+    }
+
+    public void unkC2D6(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
+    {
+        sbyte tempUnk0438 = vehicleProperties.unk0438;
+        vehicleProperties.unk0438 = -1;
+        if (tempUnk0438 >= 0)
+        {
+            unkC59F(ref vehicleProperties, ref raceProperties);
+        }
+    }
+
+    public void unkC59F(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
+    {
+        vehicleProperties.unk059C = 0;
+        if (vehicleProperties.unk05B8 >= 0)
+        {
+            // yeah idk I'll do it later
+        }
+    }
+
     public void PlayNonEngineSFX(ref VehicleProperties vehicleProperties, byte soundIndex)
     {
         if (vehicleProperties.hasUnlimitedGrip)

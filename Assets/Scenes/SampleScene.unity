@@ -638,6 +638,7 @@ GameObject:
   - component: {fileID: 555950904}
   - component: {fileID: 555950903}
   - component: {fileID: 555950902}
+  - component: {fileID: 555950906}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -747,12 +748,24 @@ Transform:
   m_GameObject: {fileID: 555950901}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 487, y: -149.5, z: -194}
+  m_LocalPosition: {x: 487, y: -150, z: -194}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &555950906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 555950901}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8938fa6f513e1fb44a0c4220f5828a20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &624042462
 GameObject:
   m_ObjectHideFlags: 3
@@ -810,8 +823,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa7155796051b734daa718462081dc5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_BindingMode: 1
-  m_FollowOffset: {x: 0, y: 0.5, z: -194}
+  m_BindingMode: 4
+  m_FollowOffset: {x: 0, y: 0, z: -194}
   m_XDamping: 0
   m_YDamping: 0
   m_ZDamping: 0
@@ -1502,7 +1515,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1525932622}
   - component: {fileID: 1525932621}
-  - component: {fileID: 1525932623}
   m_Layer: 0
   m_Name: Virtual Camera
   m_TagString: Untagged
@@ -1558,25 +1570,13 @@ Transform:
   m_GameObject: {fileID: 1525932620}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 487, y: -149.5, z: -194}
+  m_LocalPosition: {x: 487, y: -150, z: -194}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 624042463}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1525932623
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1525932620}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a8a05de0ac134f4f9d01bef6b9da077, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1594710873
 GameObject:
   m_ObjectHideFlags: 0
@@ -1809,6 +1809,11 @@ MonoBehaviour:
     lastXPosition: 0
     lastYPosition: 0
     sfx: 
+    unk041C: 0
+    unk0438: 0
+    unk04D4: 0
+    unk05B8: 0
+    unk059C: 0
   raceProperties:
     countdownTimer: 0
     turnPollTimer: 0

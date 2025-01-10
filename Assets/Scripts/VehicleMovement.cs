@@ -176,7 +176,7 @@ public class VehicleMovement: MonoBehaviour {
             raceProperties.changeZForceTimer2 = VehiclePhysics.CHANGE_Z_FORCE_TIMER_2_RATE;
         }
         vehicleProperties.isDrifting = false;
-        Vector3 newPosition = new Vector3(vehicleProperties.xPosition / 256f, -vehicleProperties.yPosition / 256f, vehicleProperties.zPosition);
+        Vector3 newPosition = new Vector3(vehicleProperties.xPosition / 256f, -vehicleProperties.yPosition / 256f, -vehicleProperties.zPosition);
         transform.position = newPosition;
     }
 

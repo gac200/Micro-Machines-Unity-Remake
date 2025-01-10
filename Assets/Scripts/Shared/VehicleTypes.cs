@@ -55,6 +55,13 @@ namespace Vehicle.Shared
         // Sound
         // not like original, but allows multiple sfx at once
         public List<byte> sfx;
+
+        // Unknown for now
+        public sbyte unk041C;
+        public sbyte unk0438;
+        public sbyte unk04D4;
+        public sbyte unk05B8;
+        public sbyte unk059C;
     }
 
     [System.Serializable]
