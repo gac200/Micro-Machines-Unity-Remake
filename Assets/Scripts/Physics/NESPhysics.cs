@@ -292,30 +292,45 @@ public class NESPhysics : VehiclePhysics
     public override void CalculateVerticalForces(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
     {
         // Don't allow negative Z Position if Z Force is positive
-        sbyte newZPosition = (sbyte)(vehicleProperties.zPosition + vehicleProperties.zForce);
+        sbyte newZPosition;
         if (vehicleProperties.zForce >= 0)
         {
-            if (newZPosition < 0) {
-                newZPosition = 0x7F;
+            newZPosition = (sbyte)(vehicleProperties.zPosition + vehicleProperties.zForce);
+            if (newZPosition < 0)
+            {
+                newZPosition = 0x7f;
             }
+        }
+        else
+        {
+            newZPosition = (sbyte)(vehicleProperties.zPosition + vehicleProperties.zForce);
         }
         vehicleProperties.zPosition = newZPosition;
 
-        // Find whether to bounce or not
-        if (vehicleProperties.zPosition <= 0)
+        // Select timer and decrease force if z position is positive,
+        // otherwise calculate bounces from ground
+        sbyte timer;
+        if (vehicleProperties.zPosition > 0)
+        {
+            if (vehicleProperties.bounceBehavior == 1)
+            {
+                timer = raceProperties.changeZForceTimer1;
+            }
+            else
+            {
+                timer = raceProperties.changeZForceTimer2;
+            }
+        }
+        else
         {
             CalculateVerticalBounce(ref vehicleProperties, ref raceProperties);
             return;
         }
-        if (vehicleProperties.bounceBehavior == 1 && raceProperties.changeZForceTimer1 != 0)
+
+        if (timer == 0)
         {
-            return;
+            vehicleProperties.zForce--;
         }
-        if (raceProperties.changeZForceTimer2 != 0)
-        {
-            return;
-        }
-        vehicleProperties.zForce -= 1;
     }
 
     public static void CalculateVerticalBounce(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties)
