@@ -43,6 +43,7 @@ namespace Vehicle.Shared
         public short xVelocityForceDifference;
         public short yVelocityForceDifference;
         public short xyVelocityForceDifferenceMagnitude;
+        public byte forcedMovementVectorIndex;
 
         // Other Properties
         public byte bounceBehavior;
@@ -68,13 +69,16 @@ namespace Vehicle.Shared
     public struct RaceProperties
     {
         // Timers
-        public sbyte countdownTimer;
+        public sbyte preRaceTimer;
         public sbyte turnPollTimer;
         public sbyte tankSlowTurnPollTimer;
         public sbyte velocityPollTimer;
         public sbyte driftSpeedLossTimer;
         public sbyte changeZForceTimer1;
         public sbyte changeZForceTimer2;
+        public sbyte accelerationTimer;
+        public sbyte decelerationTimer;
+        public sbyte reverseTimer;
 
         // General Properties
         public sbyte vehicleType;
@@ -84,7 +88,8 @@ namespace Vehicle.Shared
         // LUTs
         public sbyte[] VELOCITY_SCALAR_X_LUT;
         public sbyte[] VELOCITY_SCALAR_Y_LUT;
-        public byte[] HANDICAP_LUT;
+        public byte[] GRIP_HANDICAP_LUT;
+        public sbyte[] TOP_SPEED_HANDICAP_LUT;
         public ushort[] DRIFT_THRESHOLD_LUT;
         public byte[] DRIFT_FORCE_AMOUNT_LUT;
     }

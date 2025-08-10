@@ -47,6 +47,9 @@ public class VehicleMovement: MonoBehaviour {
         raceProperties.driftSpeedLossTimer = VehiclePhysics.DRIFT_SPEED_LOSS_RATE;
         raceProperties.changeZForceTimer1 = VehiclePhysics.CHANGE_Z_FORCE_TIMER_1_RATE;
         raceProperties.changeZForceTimer2 = VehiclePhysics.CHANGE_Z_FORCE_TIMER_2_RATE;
+        raceProperties.accelerationTimer = VehiclePhysics.ACCELERATION_RATE;
+        raceProperties.decelerationTimer = VehiclePhysics.DECELERATION_RATE;
+        raceProperties.reverseTimer = VehiclePhysics.REVERSE_RATE;
         vehicleProperties.handicapAmount = 0x10;
         vehicleProperties.xPosition = (int)transform.position.x * 256;
         vehicleProperties.yPosition = (int)-transform.position.y * 256;
@@ -89,9 +92,14 @@ public class VehicleMovement: MonoBehaviour {
         vehicleProperties.yPosition += vehicleProperties.yForce;
         // TODO: finish
         vehiclePhysics.CalculateVerticalForces(ref vehicleProperties, ref raceProperties);
-
-        // TODO: implement
-        //vehiclePhysics.$EA96
+        vehiclePhysics.CalculateAIAndTerrainEffects(ref vehicleProperties, ref raceProperties);
+        if (vehicleProperties.spawnState == VehiclePhysics.ALIVE)
+        {
+            // do stuff from DD5B to DD90
+            vehiclePhysics.CalculateAcceleration(ref vehicleProperties, ref raceProperties);
+            // do stuff from DD94 to DD97
+        }
+        //unkE167();
         //vehiclePhysics.$DD5B
         if (vehicleProperties.heading >= 0 && vehicleProperties.heading < 16)
         {
@@ -175,6 +183,30 @@ public class VehicleMovement: MonoBehaviour {
         {
             raceProperties.changeZForceTimer2 = VehiclePhysics.CHANGE_Z_FORCE_TIMER_2_RATE;
         }
+        if (raceProperties.accelerationTimer > 0)
+        {
+            raceProperties.accelerationTimer--;
+        }
+        else
+        {
+            raceProperties.accelerationTimer = VehiclePhysics.ACCELERATION_RATE;
+        }
+        if (raceProperties.decelerationTimer > 0)
+        {
+            raceProperties.decelerationTimer--;
+        }
+        else
+        {
+            raceProperties.decelerationTimer = VehiclePhysics.DECELERATION_RATE;
+        }
+        if (raceProperties.reverseTimer > 0)
+        {
+            raceProperties.reverseTimer--;
+        }
+        else
+        {
+            raceProperties.reverseTimer = VehiclePhysics.REVERSE_RATE;
+        }
         vehicleProperties.isDrifting = false;
         Vector3 newPosition = new Vector3(vehicleProperties.xPosition / 256f, -vehicleProperties.yPosition / 256f, -vehicleProperties.zPosition);
         transform.position = newPosition;
@@ -213,7 +245,8 @@ public class VehicleMovement: MonoBehaviour {
             case VehiclePhysics.POWERBOATS:
                 raceProperties.VELOCITY_SCALAR_X_LUT = Array.ConvertAll(VehiclePhysics.POWERBOATS_VELOCITY_SCALAR_X_LUT, b => unchecked((sbyte)b));
                 raceProperties.VELOCITY_SCALAR_Y_LUT = Array.ConvertAll(VehiclePhysics.POWERBOATS_VELOCITY_SCALAR_Y_LUT, b => unchecked((sbyte)b));
-                raceProperties.HANDICAP_LUT = VehiclePhysics.POWERBOATS_HANDICAP_LUT;
+                raceProperties.GRIP_HANDICAP_LUT = VehiclePhysics.POWERBOATS_GRIP_HANDICAP_LUT;
+                raceProperties.TOP_SPEED_HANDICAP_LUT = VehiclePhysics.POWERBOATS_TOP_SPEED_HANDICAP_LUT;
                 raceProperties.DRIFT_THRESHOLD_LUT = VehiclePhysics.POWERBOATS_DRIFT_THRESHOLD_LUT;
                 raceProperties.DRIFT_FORCE_AMOUNT_LUT = VehiclePhysics.POWERBOATS_DRIFT_FORCE_AMOUNT_LUT;
                 break;

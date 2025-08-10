@@ -25,10 +25,15 @@ public abstract class VehiclePhysics
     public const int DRIFT_SPEED_LOSS_RATE = 6;
     public const int CHANGE_Z_FORCE_TIMER_1_RATE = 2;
     public const int CHANGE_Z_FORCE_TIMER_2_RATE = 1;
+    public const int ACCELERATION_RATE = 5;
+    public const int DECELERATION_RATE = 9;
+    public const int REVERSE_RATE = 2;
     public abstract void Turn(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties);
     public abstract void CalculateVelocityScalars(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties);
     public abstract void CalculateVelocityForces(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties);
     public abstract void CalculateVerticalForces(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties);
+    public abstract void CalculateAIAndTerrainEffects(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties);
+    public abstract void CalculateAcceleration(ref VehicleProperties vehicleProperties, ref RaceProperties raceProperties);
 
     // Lookup Tables
     public static readonly sbyte[] HEADING_CLAMP_LUT =
@@ -72,11 +77,17 @@ public abstract class VehiclePhysics
         0x00, 0xFA, 0xF4, 0xED, 0xE8, 0xE2, 0xDC, 0xD7,
         0xD3, 0xCF, 0xCB, 0xC8, 0xC5, 0xC3, 0xC1, 0xC0
     };
-    public static readonly byte[] POWERBOATS_HANDICAP_LUT =
+    public static readonly byte[] POWERBOATS_GRIP_HANDICAP_LUT =
     {
         0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0B, 0x0C,
         0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x12, 0x13, 0x14,
         0x15, 0x15, 0x15, 0x15, 0x15, 0x15
+    };
+    public static readonly sbyte[] POWERBOATS_TOP_SPEED_HANDICAP_LUT =
+    {
+        0x04, 0x05, 0x07, 0x09, 0x0A, 0x0C, 0x0E, 0x0F,
+        0x10, 0x10, 0x11, 0x11, 0x12, 0x12, 0x13, 0x13,
+        0x14, 0x15, 0x16, 0x17, 0x18, 0x19
     };
     public static readonly ushort[] POWERBOATS_DRIFT_THRESHOLD_LUT =
     {
